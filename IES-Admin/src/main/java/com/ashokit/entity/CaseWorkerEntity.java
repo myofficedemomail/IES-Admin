@@ -22,4 +22,5 @@ public class CaseWorkerEntity {
 	private Date dob;
 	private Long ssnNo;
 	private Date dtTime;
+	private String password;
 }

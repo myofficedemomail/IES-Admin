@@ -16,6 +16,8 @@ import com.ashokit.payload.CaseWorkerDto;
 import com.ashokit.payload.PlanDto;
 import com.ashokit.repo.CaseWorkerRepo;
 import com.ashokit.service.CaseWorkerService;
+import com.ashokit.util.MailUtils;
+import com.ashokit.util.PasswordGenerationUtil;
 
 @Service
 public class CaseWorkerServiceImpl implements CaseWorkerService {
@@ -25,15 +27,33 @@ public class CaseWorkerServiceImpl implements CaseWorkerService {
 	private ModelMapper modelMapper;
 	@Autowired
 	private SimpleDateFormat dtFormat;
+	@Autowired
+	private MailUtils mailUtil;
+	@Autowired
+	private PasswordGenerationUtil passwordGenerationUtil;
 
 	@Override
 	public CaseWorkerDto createCaseWorker(CaseWorkerDto caseWorkerDto) {
 		CaseWorkerEntity caseWorkerEntity = modelMapper.map(caseWorkerDto, CaseWorkerEntity.class);
+		String password=passwordGenerationUtil.generatePassword();
 		caseWorkerEntity.setCaseWorkerId(null);
 		caseWorkerEntity.setDtTime(new Date());
+		caseWorkerEntity.setPassword(password);
 		caseWorkerEntity = caseWorkerRepo.save(caseWorkerEntity);
 		caseWorkerDto = modelMapper.map(caseWorkerEntity, CaseWorkerDto.class);
 		caseWorkerDto.setDob(dtFormat.format(caseWorkerEntity.getDob()));
+		
+		
+		String subject="Unlock Your Account | IES Admin";
+		StringBuffer body=new StringBuffer();
+		body.append("<h1>Hello "+caseWorkerDto.getCaseWorkerName()+" ,</h1>");
+		body.append("Please find below temporary password to unlock your account.");
+		body.append("<br><a href='http://localhost:9090/admin/caseworker/unlockAccount?email="+caseWorkerDto.getEmailId()+"'>Click here to activate the account</a>");
+		body.append("<h2 style='color:red;'>Temporary Password::"+password+"</h2>");
+		body.append("<br><br>");
+		body.append("<b>Regards,<br>IES Admin | Cheers</b>");
+		mailUtil.sendEmail(subject, body.toString(), caseWorkerDto.getEmailId());
+		
 		return caseWorkerDto;
 	}
 
