@@ -1,5 +1,7 @@
 package com.ashokit.service.impl;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,12 +20,18 @@ public class PlanServiceImpl implements PlanService {
 	private PlanRepo planRepo;
 	@Autowired
 	private ModelMapper modelMapper;
+	@Autowired
+	private SimpleDateFormat dtFormat;
 	@Override
 	public PlanDto createPlan(PlanDto planDto) {
 		PlanEntity planEntity = modelMapper.map(planDto, PlanEntity.class);
+		planEntity.setPlanId(null);
 		planEntity.setPlanStatus("A");
+		planEntity.setDtTime(new Date());
 		planEntity=planRepo.save(planEntity);
 		planDto=modelMapper.map(planEntity, PlanDto.class);
+		planDto.setPlanEndDate(dtFormat.format(planEntity.getPlanEndDate()));
+		planDto.setPlanStartDate(dtFormat.format(planEntity.getPlanStartDate()));
 		return planDto;
 	}
 
