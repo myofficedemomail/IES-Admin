@@ -27,7 +27,6 @@ public class PlanServiceImpl implements PlanService {
 		PlanEntity planEntity = modelMapper.map(planDto, PlanEntity.class);
 		planEntity.setPlanId(null);
 		planEntity.setPlanStatus("A");
-		planEntity.setDtTime(new Date());
 		planEntity=planRepo.save(planEntity);
 		planDto=modelMapper.map(planEntity, PlanDto.class);
 		planDto.setPlanEndDate(dtFormat.format(planEntity.getPlanEndDate()));

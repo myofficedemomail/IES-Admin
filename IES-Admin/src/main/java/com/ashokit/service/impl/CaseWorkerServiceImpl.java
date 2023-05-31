@@ -1,7 +1,6 @@
 package com.ashokit.service.impl;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,18 +14,18 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.ashokit.entity.CaseWorkerEntity;
+import com.ashokit.entity.UserEntity;
 import com.ashokit.exception.ResourceNotFoundException;
-import com.ashokit.payload.CaseWorkerDto;
-import com.ashokit.repo.CaseWorkerRepo;
-import com.ashokit.service.CaseWorkerService;
+import com.ashokit.payload.UserDto;
+import com.ashokit.repo.UserRepo;
+import com.ashokit.service.UserService;
 import com.ashokit.util.MailUtils;
 import com.ashokit.util.PasswordGenerationUtil;
 
 @Service
-public class CaseWorkerServiceImpl implements CaseWorkerService , UserDetailsService{
+public class CaseWorkerServiceImpl implements UserService , UserDetailsService{
 	@Autowired
-	private CaseWorkerRepo caseWorkerRepo;
+	private UserRepo userRepo;
 	@Autowired
 	private ModelMapper modelMapper;
 	@Autowired
@@ -40,74 +39,77 @@ public class CaseWorkerServiceImpl implements CaseWorkerService , UserDetailsSer
 
 
 	@Override
-	public CaseWorkerDto createCaseWorker(CaseWorkerDto caseWorkerDto) {
-		CaseWorkerEntity caseWorkerEntity = modelMapper.map(caseWorkerDto, CaseWorkerEntity.class);
+	public UserDto createUser(UserDto userDto) {
+		UserEntity userEntity = modelMapper.map(userDto, UserEntity.class);
 		String password=passwordGenerationUtil.generatePassword();
-		caseWorkerEntity.setCaseWorkerId(null);
-		caseWorkerEntity.setDtTime(new Date());
-		caseWorkerEntity.setPassword(pwdEncoder.encode(password));
-		caseWorkerEntity = caseWorkerRepo.save(caseWorkerEntity);
-		caseWorkerDto = modelMapper.map(caseWorkerEntity, CaseWorkerDto.class);
-		caseWorkerDto.setDob(dtFormat.format(caseWorkerEntity.getDob()));
+		userEntity.setUserId(null);
+		userEntity.setUserPwd(pwdEncoder.encode(password));
+		userEntity.setAccStatus("LOCKED");
+		userEntity.setActiveSw("Y");
+		userEntity.setCreatedBy("ADMIN");
+		userEntity.setUpdatedBy("");
+		userEntity = userRepo.save(userEntity);
+		userDto = modelMapper.map(userEntity, UserDto.class);
+		userDto.setUserDob(dtFormat.format(userEntity.getUserDob()));
 		
 		
 		String subject="Unlock Your Account | IES Admin";
 		StringBuffer body=new StringBuffer();
-		body.append("<h1>Hello "+caseWorkerDto.getCaseWorkerName()+" ,</h1>");
+		body.append("<h1>Hello "+userDto.getFullName()+" ,</h1>");
 		body.append("Please find below temporary password to unlock your account.");
-		body.append("<br><a href='http://localhost:9090/admin/caseworker/unlockAccount?email="+caseWorkerDto.getEmailId()+"'>Click here to activate the account</a>");
+		body.append("<br><a href='http://localhost:9090/admin/caseworker/unlockAccount?email="+userDto.getUserEmail()+"'>Click here to activate the account</a>");
 		body.append("<h2 style='color:red;'>Temporary Password::"+password+"</h2>");
 		body.append("<br><br>");
 		body.append("<b>Regards,<br>IES Admin | Cheers</b>");
-		mailUtil.sendEmail(subject, body.toString(), caseWorkerDto.getEmailId());
+		mailUtil.sendEmail(subject, body.toString(), userDto.getUserEmail());
 		
-		return caseWorkerDto;
+		return userDto;
 	}
 
 	@Override
-	public List<CaseWorkerDto> getAllCaseWorkers() {
-		List<CaseWorkerEntity> allCaseWorker = caseWorkerRepo.findAll();
-		List<CaseWorkerDto> allCaseWorkerDto = null;
+	public List<UserDto> getAllUsers() {
+		List<UserEntity> allUser = userRepo.findAll();
+		List<UserDto> allUserDto = null;
 		/*
 		 * PlanDto planDto=null; for(PlanEntity entity:allPlans) {
 		 * planDto=modelMapper.map(entity,PlanDto.class); allPlanDtos.add(planDto); }
 		 */
-		allCaseWorkerDto = allCaseWorker.stream().map((caseWorker) -> modelMapper.map(caseWorker, CaseWorkerDto.class))
+		allUserDto = allUser.stream().map((caseWorker) -> modelMapper.map(caseWorker, UserDto.class))
 				.collect(Collectors.toList());
-		return allCaseWorkerDto;
+		return allUserDto;
 	}
 
 	@Override
-	public CaseWorkerDto getCaseWorkerById(Integer caseWorkerId) throws ResourceNotFoundException {
-		CaseWorkerEntity caseWorkerEntity = caseWorkerRepo.findById(caseWorkerId).orElseThrow(
-				() -> new ResourceNotFoundException("Case Worker", "Case Worker Id", caseWorkerId.toString()));
-		CaseWorkerDto caseWorkerDto = modelMapper.map(caseWorkerEntity, CaseWorkerDto.class);
-		return caseWorkerDto;
+	public UserDto getUserById(Integer userId) throws ResourceNotFoundException {
+		UserEntity UserEntity = userRepo.findById(userId).orElseThrow(
+				() -> new ResourceNotFoundException("Case Worker", "Case Worker Id", userId.toString()));
+		UserDto userDto = modelMapper.map(UserEntity, UserDto.class);
+		return userDto;
 	}
 
 	@Override
-	public CaseWorkerDto updateCaseWorker(CaseWorkerDto caseWorkerDto, Integer caseWorkerId)
+	public UserDto updateUser(UserDto userDto, Integer userId)
 			throws ResourceNotFoundException {
-		CaseWorkerEntity caseWorkerEntity = caseWorkerRepo.findById(caseWorkerId).orElseThrow(
-				() -> new ResourceNotFoundException("Case Worker", "Case Worker Id", caseWorkerId.toString()));
-		CaseWorkerEntity caseWorkerEntity2 = modelMapper.map(caseWorkerDto, CaseWorkerEntity.class);
-		caseWorkerEntity2.setCaseWorkerId(caseWorkerId);
-		caseWorkerEntity2 = caseWorkerRepo.save(caseWorkerEntity2);
-		caseWorkerDto = modelMapper.map(caseWorkerEntity2, CaseWorkerDto.class);
-		return caseWorkerDto;
+		UserEntity userEntity = userRepo.findById(userId).orElseThrow(
+				() -> new ResourceNotFoundException("Case Worker", "Case Worker Id", userId.toString()));
+		UserEntity userEntity2 = modelMapper.map(userDto, UserEntity.class);
+		userEntity2.setUserId(userId);
+		userEntity2 = userRepo.save(userEntity2);
+		userDto = modelMapper.map(userEntity2, UserDto.class);
+		return userDto;
 	}
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		CaseWorkerEntity caseWorkerEntity = caseWorkerRepo.findByEmailId(username);
-		if (caseWorkerEntity == null)
+		UserEntity userEntity = userRepo.findByUserEmail(username);
+		if (userEntity == null)
 			throw new UsernameNotFoundException(
 					new StringBuffer().append("User name ").append(username).append(" not found!").toString());
 
-		List<GrantedAuthority> authorities = caseWorkerEntity.getRoles().stream().map(role -> new SimpleGrantedAuthority(role))
+		List<GrantedAuthority> authorities = userEntity.getListUserRoles().stream().map(role -> new SimpleGrantedAuthority(role.getRoleName()))
 				.collect(Collectors.toList());
 
-		return new org.springframework.security.core.userdetails.User(username, caseWorkerEntity.getPassword(), authorities);
+		return new org.springframework.security.core.userdetails.User(username, userEntity.getUserPwd(), authorities);
 	}
 
 }

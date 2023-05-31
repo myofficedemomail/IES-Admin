@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
-//@Component
+@Component
 public class TestRunner implements CommandLineRunner {
 	@Autowired
 	private BCryptPasswordEncoder pwdEncoder;
