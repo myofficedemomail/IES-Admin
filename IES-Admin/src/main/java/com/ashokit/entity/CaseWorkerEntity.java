@@ -1,8 +1,11 @@
 package com.ashokit.entity;
 
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -23,4 +26,6 @@ public class CaseWorkerEntity {
 	private Long ssnNo;
 	private Date dtTime;
 	private String password;
+	@ElementCollection(fetch = FetchType.EAGER)
+	private List<String> roles;
 }

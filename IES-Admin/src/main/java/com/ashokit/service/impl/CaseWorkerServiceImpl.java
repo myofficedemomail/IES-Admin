@@ -7,20 +7,24 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.ashokit.entity.CaseWorkerEntity;
-import com.ashokit.entity.PlanEntity;
 import com.ashokit.exception.ResourceNotFoundException;
 import com.ashokit.payload.CaseWorkerDto;
-import com.ashokit.payload.PlanDto;
 import com.ashokit.repo.CaseWorkerRepo;
 import com.ashokit.service.CaseWorkerService;
 import com.ashokit.util.MailUtils;
 import com.ashokit.util.PasswordGenerationUtil;
 
 @Service
-public class CaseWorkerServiceImpl implements CaseWorkerService {
+public class CaseWorkerServiceImpl implements CaseWorkerService , UserDetailsService{
 	@Autowired
 	private CaseWorkerRepo caseWorkerRepo;
 	@Autowired
@@ -31,6 +35,9 @@ public class CaseWorkerServiceImpl implements CaseWorkerService {
 	private MailUtils mailUtil;
 	@Autowired
 	private PasswordGenerationUtil passwordGenerationUtil;
+	@Autowired
+	private BCryptPasswordEncoder pwdEncoder;
+
 
 	@Override
 	public CaseWorkerDto createCaseWorker(CaseWorkerDto caseWorkerDto) {
@@ -38,7 +45,7 @@ public class CaseWorkerServiceImpl implements CaseWorkerService {
 		String password=passwordGenerationUtil.generatePassword();
 		caseWorkerEntity.setCaseWorkerId(null);
 		caseWorkerEntity.setDtTime(new Date());
-		caseWorkerEntity.setPassword(password);
+		caseWorkerEntity.setPassword(pwdEncoder.encode(password));
 		caseWorkerEntity = caseWorkerRepo.save(caseWorkerEntity);
 		caseWorkerDto = modelMapper.map(caseWorkerEntity, CaseWorkerDto.class);
 		caseWorkerDto.setDob(dtFormat.format(caseWorkerEntity.getDob()));
@@ -88,6 +95,19 @@ public class CaseWorkerServiceImpl implements CaseWorkerService {
 		caseWorkerEntity2 = caseWorkerRepo.save(caseWorkerEntity2);
 		caseWorkerDto = modelMapper.map(caseWorkerEntity2, CaseWorkerDto.class);
 		return caseWorkerDto;
+	}
+
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		CaseWorkerEntity caseWorkerEntity = caseWorkerRepo.findByEmailId(username);
+		if (caseWorkerEntity == null)
+			throw new UsernameNotFoundException(
+					new StringBuffer().append("User name ").append(username).append(" not found!").toString());
+
+		List<GrantedAuthority> authorities = caseWorkerEntity.getRoles().stream().map(role -> new SimpleGrantedAuthority(role))
+				.collect(Collectors.toList());
+
+		return new org.springframework.security.core.userdetails.User(username, caseWorkerEntity.getPassword(), authorities);
 	}
 
 }
