@@ -1,6 +1,7 @@
 package com.ashokit.service.impl;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,9 +17,11 @@ import org.springframework.stereotype.Service;
 
 import com.ashokit.entity.UserEntity;
 import com.ashokit.exception.ResourceNotFoundException;
+import com.ashokit.payload.UnlockDto;
 import com.ashokit.payload.UserDto;
 import com.ashokit.repo.UserRepo;
 import com.ashokit.service.UserService;
+import com.ashokit.util.AppConstants;
 import com.ashokit.util.MailUtils;
 import com.ashokit.util.PasswordGenerationUtil;
 
@@ -43,11 +46,11 @@ public class CaseWorkerServiceImpl implements UserService , UserDetailsService{
 		UserEntity userEntity = modelMapper.map(userDto, UserEntity.class);
 		String password=passwordGenerationUtil.generatePassword();
 		userEntity.setUserId(null);
-		userEntity.setUserPwd(pwdEncoder.encode(password));
-		userEntity.setAccStatus("LOCKED");
-		userEntity.setActiveSw("Y");
-		userEntity.setCreatedBy("ADMIN");
-		userEntity.setUpdatedBy("");
+		userEntity.setUserPwd(password);
+		userEntity.setAccStatus(AppConstants.LOCKED);
+		userEntity.setActiveSw(AppConstants.ACTIVE);
+		userEntity.setCreatedBy(AppConstants.ADMIN);
+		userEntity.setCreatedDate(new Date());
 		userEntity = userRepo.save(userEntity);
 		userDto = modelMapper.map(userEntity, UserDto.class);
 		userDto.setUserDob(dtFormat.format(userEntity.getUserDob()));
@@ -110,6 +113,38 @@ public class CaseWorkerServiceImpl implements UserService , UserDetailsService{
 				.collect(Collectors.toList());
 
 		return new org.springframework.security.core.userdetails.User(username, userEntity.getUserPwd(), authorities);
+	}
+
+	@Override
+	public String unlockUser(UnlockDto unlockDto) throws ResourceNotFoundException {
+		UserEntity userEntity = userRepo.findByUserEmail(unlockDto.getUserEmail());
+		String msg="";
+		if(userEntity!=null) {
+			if(unlockDto.getUserPwd().equals(unlockDto.getUserConfirmPwd())) {
+				if(userEntity.getUserPwd().equals(unlockDto.getTemporaryPwd())) {
+					if(userEntity.getAccStatus().equals(AppConstants.LOCKED)) {
+						userEntity.setUserPwd(pwdEncoder.encode(unlockDto.getUserPwd()));
+						userEntity.setAccStatus(AppConstants.UNLOCKED);
+						userEntity.setUpdatedBy(AppConstants.CASEWORKER);
+						userEntity.setUpdatedDate(new Date());
+						userRepo.save(userEntity);
+						msg="Account Successfully Unlocked";
+						return msg;
+					}else {
+						msg="Your Account Is Already Unlocked";
+						return msg;
+					}
+				}else {
+					msg="Incorrect Temporary Password";
+					return msg;
+				}
+			}else {
+				msg="Password And Confirm Password Not Matched";
+				return msg;
+			}
+		}else {
+			throw new ResourceNotFoundException("Case Worker", "Case Worker Mail Id", unlockDto.getUserEmail());
+		}
 	}
 
 }

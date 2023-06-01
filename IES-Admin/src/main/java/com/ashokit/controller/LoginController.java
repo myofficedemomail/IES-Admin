@@ -15,7 +15,7 @@ import com.ashokit.util.JwtUtil;
 
 @RestController
 @RequestMapping("/admin")
-public class AdminController {
+public class LoginController {
 	@Autowired
 	private AuthenticationManager authenticationManager;
 	@Autowired

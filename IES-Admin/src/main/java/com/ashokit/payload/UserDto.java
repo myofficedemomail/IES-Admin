@@ -28,6 +28,6 @@ public class UserDto {
 	@Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}", message = "Invalid Date Format. Format Should Be yyyy-mm-dd")
 	private String userDob;
 	@NotEmpty
-	@Pattern(regexp = "(^$|[0-9]{12})", message = "SSN Number Should Be 12 Digits")
+	@Pattern(regexp = "(^$|[0-9]{9})", message = "SSN Number Should Be 9 Digits")
 	private String userSsn;
 }

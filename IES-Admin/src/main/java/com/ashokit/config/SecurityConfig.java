@@ -45,8 +45,9 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain configure(HttpSecurity http) throws Exception {
-		http.csrf().disable().authorizeRequests().antMatchers("/admin/login").permitAll().anyRequest()
-				.authenticated().and().exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).and()
+		http.csrf().disable().authorizeRequests().antMatchers("/admin/login").permitAll()
+		.anyRequest().authenticated()
+		.and().exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).and()
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
 				.addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
 		return http.build();

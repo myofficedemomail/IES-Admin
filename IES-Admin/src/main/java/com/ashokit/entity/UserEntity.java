@@ -20,7 +20,7 @@ import lombok.Data;
 @Table(name = "IES_USER")
 public class UserEntity {
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "USER_ID")
 	private Integer userId;
 	@Column(name = "FULL_NAME")
@@ -50,5 +50,5 @@ public class UserEntity {
 	@Column(name = "UPDATED_DATE")
 	private Date updatedDate;
 	@Column(name = "CREATED_DATE")
-	private String createdDate;
+	private Date createdDate;
 }
