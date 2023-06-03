@@ -147,4 +147,17 @@ public class CaseWorkerServiceImpl implements UserService , UserDetailsService{
 		}
 	}
 
+	@Override
+	public boolean switchUser(Integer userId) throws ResourceNotFoundException {
+		UserEntity userEntity = userRepo.findById(userId).orElseThrow(
+				() -> new ResourceNotFoundException("Case Worker", "Case Worker Id", userId.toString()));
+		if(AppConstants.ACTIVE.equals(userEntity.getActiveSw())) {
+			userEntity.setActiveSw(AppConstants.BLOCK);
+		}else {
+			userEntity.setActiveSw(AppConstants.ACTIVE);
+		}
+		userRepo.save(userEntity);
+		return true;
+	}
+
 }

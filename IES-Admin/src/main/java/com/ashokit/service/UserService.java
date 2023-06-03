@@ -17,4 +17,6 @@ public interface UserService {
 	UserDto updateUser(UserDto userDto, Integer userId) throws ResourceNotFoundException;
 
 	String unlockUser(UnlockDto unlockDto) throws ResourceNotFoundException;
+	
+	boolean switchUser(Integer userId) throws ResourceNotFoundException;
 }

@@ -14,4 +14,6 @@ public interface PlanService {
 	PlanDto getPlanById(Integer planId) throws ResourceNotFoundException;
 
 	PlanDto updatePlan(PlanDto planDto, Integer planId) throws ResourceNotFoundException;
+	
+	boolean switchPlan(Integer planId) throws ResourceNotFoundException;
 }

@@ -55,4 +55,18 @@ public class UserController {
 		ApiResponse response=new ApiResponse(unlockMsg, false);
 		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
+	@PutMapping("switchAccount/{accountId}")
+	public ResponseEntity<ApiResponse> switchAccount(@PathVariable Integer accountId){
+		boolean flag = userService.switchUser(accountId);
+		ApiResponse apiResponse=new ApiResponse();
+		if(flag) {
+			apiResponse.setMessage("Successfully Switched");
+			apiResponse.setSuccess(true);
+			return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+		}else {
+			apiResponse.setMessage("Failed To Switched");
+			apiResponse.setSuccess(false);
+			return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+		}
+	}
 }

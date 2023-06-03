@@ -14,6 +14,7 @@ import com.ashokit.exception.ResourceNotFoundException;
 import com.ashokit.payload.PlanDto;
 import com.ashokit.repo.PlanRepo;
 import com.ashokit.service.PlanService;
+import com.ashokit.util.AppConstants;
 @Service
 public class PlanServiceImpl implements PlanService {
 	@Autowired
@@ -26,7 +27,7 @@ public class PlanServiceImpl implements PlanService {
 	public PlanDto createPlan(PlanDto planDto) {
 		PlanEntity planEntity = modelMapper.map(planDto, PlanEntity.class);
 		planEntity.setPlanId(null);
-		planEntity.setPlanStatus("A");
+		planEntity.setPlanActiveSw(AppConstants.ACTIVE);
 		planEntity=planRepo.save(planEntity);
 		planDto=modelMapper.map(planEntity, PlanDto.class);
 		planDto.setPlanEndDate(dtFormat.format(planEntity.getPlanEndDate()));
@@ -62,6 +63,18 @@ public class PlanServiceImpl implements PlanService {
 		planEntity2=planRepo.save(planEntity2);
 		planDto=modelMapper.map(planEntity2, PlanDto.class);
 		return planDto;
+	}
+
+	@Override
+	public boolean switchPlan(Integer planId) throws ResourceNotFoundException {
+		PlanEntity planEntity = planRepo.findById(planId).orElseThrow(()->new ResourceNotFoundException("Plan", "Plan Id", planId.toString()));
+		if(AppConstants.ACTIVE.equals(planEntity.getPlanActiveSw())) {
+			planEntity.setPlanActiveSw(AppConstants.BLOCK);
+		}else {
+			planEntity.setPlanActiveSw(AppConstants.ACTIVE);
+		}
+		planRepo.save(planEntity);
+		return true;
 	}
 
 }

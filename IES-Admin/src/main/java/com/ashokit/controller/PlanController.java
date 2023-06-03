@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ashokit.payload.ApiResponse;
 import com.ashokit.payload.PlanDto;
 import com.ashokit.service.PlanService;
 
@@ -41,9 +42,24 @@ public class PlanController {
 		PlanDto planDto = planService.getPlanById(planId);
 		return new ResponseEntity<PlanDto>(planDto, HttpStatus.OK);
 	}
+
 	@PutMapping("updatePlan/{planId}")
-	public ResponseEntity<PlanDto> updatePlan(@PathVariable Integer planId,@Valid @RequestBody PlanDto planDto){
+	public ResponseEntity<PlanDto> updatePlan(@PathVariable Integer planId, @Valid @RequestBody PlanDto planDto) {
 		PlanDto updatedPlan = planService.updatePlan(planDto, planId);
 		return new ResponseEntity<>(updatedPlan, HttpStatus.OK);
+	}
+
+	@PutMapping("switchPlan/{planId}")
+	public ResponseEntity<ApiResponse> switchPlan(@PathVariable Integer planId){
+		boolean flag = planService.switchPlan(planId);
+		ApiResponse apiResponse=new ApiResponse();
+		if(flag) {
+			apiResponse.setMessage("Successfully Switched");
+			apiResponse.setSuccess(true);
+		}else {
+			apiResponse.setMessage("Failed To Switched");
+			apiResponse.setSuccess(false);
+		}
+		return new ResponseEntity<>(apiResponse, HttpStatus.OK);
 	}
 }

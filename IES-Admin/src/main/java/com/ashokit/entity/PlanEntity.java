@@ -25,8 +25,8 @@ public class PlanEntity {
 	private Date planStartDate;
 	@Column(name = "PLAN_END_DATE")
 	private Date planEndDate;
-	@Column(name = "PLAN_STATUS")
-	private String planStatus;
+	@Column(name = "planActiveSw")
+	private String planActiveSw;
 	@Column(name = "CREATED_BY")
 	private String createdBy;
 	@Column(name = "UPDATED_BY")
