@@ -13,7 +13,7 @@ import lombok.Data;
 public class PlanDto {
 	private Integer planId;
 	@NotEmpty(message = "Plan Name Can Not Be Empty")
-	@Size(min = 4, max = 20, message = "Plan Should Be Between 4 To 20 Characters")
+	@Size(min = 3, max = 20, message = "Plan Should Be Between 3 To 20 Characters")
 	private String planName;
 	@NotEmpty(message = "Plan Start Date Can Not Be Empty")
 	@DateTimeFormat(pattern = "yyyy-MM-dd")

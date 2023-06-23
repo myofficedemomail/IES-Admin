@@ -1,6 +1,7 @@
 package com.ashokit.service.impl;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.ashokit.entity.UserEntity;
+import com.ashokit.entity.UserRoles;
 import com.ashokit.exception.ResourceNotFoundException;
 import com.ashokit.payload.UnlockDto;
 import com.ashokit.payload.UserDto;
@@ -51,6 +53,9 @@ public class CaseWorkerServiceImpl implements UserService , UserDetailsService{
 		userEntity.setActiveSw(AppConstants.ACTIVE);
 		userEntity.setCreatedBy(AppConstants.ADMIN);
 		userEntity.setCreatedDate(new Date());
+		UserRoles userRoles=new UserRoles();
+		userRoles.setRoleName(AppConstants.ADMIN);
+		userEntity.setListUserRoles(Arrays.asList(userRoles));
 		userEntity = userRepo.save(userEntity);
 		userDto = modelMapper.map(userEntity, UserDto.class);
 		userDto.setUserDob(dtFormat.format(userEntity.getUserDob()));
