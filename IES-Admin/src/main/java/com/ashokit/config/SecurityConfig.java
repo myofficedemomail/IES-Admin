@@ -52,6 +52,9 @@ public class SecurityConfig {
 	public SecurityFilterChain configure(HttpSecurity http) throws Exception {
 		http.csrf().disable().authorizeRequests()
 		.antMatchers("/admin/login").permitAll()
+		.antMatchers("/admin/user/createAccount").permitAll()
+		.antMatchers("/admin/user/unlockAccount").permitAll()
+		.antMatchers("/admin/user/*").hasAuthority("IES-ADMIN")
 		.antMatchers("/v3/api-docs").permitAll()
 		.antMatchers("/swagger-ui/index.html").permitAll()
 		.antMatchers("/swagger-ui.html").permitAll()
